@@ -4,7 +4,7 @@ class Retrieval:
         self.collection = collection
 
     def retrieve_chunks(self, user_input):
-        similarity_threshold = 1.50
+        similarity_threshold = 1.0
 
         if self.collection.count() == 0:
             return []
@@ -17,8 +17,8 @@ class Retrieval:
     
         chunks = []
         for doc, dist in zip(results['documents'][0], results['distances'][0]):
-            print(doc)
-            print(dist)
             if dist < similarity_threshold:
+                print(doc)
+                print(dist)
                 chunks.append(doc)
         return chunks
