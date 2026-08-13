@@ -6,7 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 import selenium.common.exceptions as Exc
 from selenium.webdriver.edge.service import Service
 import time
-
+from rich.markdown import Markdown
+from markdownify import markdownify
 class LLM:
 
     def __init__(self):
@@ -27,7 +28,6 @@ class LLM:
             Chat_Instance.click()
             
         except Exc.TimeoutException:
-                    print("exception..")
                     Message_Box = WebDriverWait(self.driver , 10).until(EC.element_to_be_clickable((By.XPATH,"//p[@dir= 'auto']")))
                     Default_Message = "virtual assistant"
                     Message_Box.send_keys(Default_Message)
@@ -37,9 +37,15 @@ class LLM:
                 
 
     def get_answer(self, retrieved_context, user_query):
-      prompt = f"""You are a helpful assistant. Use ONLY the provided context to answer the user's question. If the context does not contain the answer, say "I don't have enough information." if the user asks you about info. Context: {" ".join(retrieved_context)} User Question: {user_query}"""
-      WebDriverWait(self.driver, 200).until(lambda d: d.find_element(By.XPATH,"//div[@data-testid='lastChatMessage']").text.strip() != "")
+      prompt = f"""You are a helpful assistant. Use ONLY the provided context to answer the user's question. If the context does not contain the answer, say "I don't have enough information." if the user asks you about info. Context: {" ".join(retrieved_context)} User Question: {user_query} Note: Sometimes the Rag system will return an irrelevant information to the user's question, Ignore it, please."""
+      try:
+        WebDriverWait(self.driver, 30).until(lambda d: d.find_element(By.XPATH,"(//div[@data-testid='lastChatMessage'])[1]").text.strip() != "")
+      except:
+           self.driver.refresh()
+           WebDriverWait(self.driver, 120).until(lambda d: d.find_element(By.XPATH,"(//div[@data-testid='lastChatMessage'])[1]").text.strip() != "")
 
+
+               
       try:
         
         Message_Box = WebDriverWait(self.driver , 10).until(EC.element_to_be_clickable((By.XPATH,"//p[@dir= 'auto']")))      
@@ -48,7 +54,7 @@ class LLM:
         Button = WebDriverWait(self.driver , 10).until(EC.element_to_be_clickable((By.XPATH,"//button[@type= 'submit']")))
         Button.click()
 
-      except Exc.StaleElementReferenceException:
+      except:
 
         Message_Box = WebDriverWait(self.driver , 10).until(EC.element_to_be_clickable((By.XPATH,"//p[@dir= 'auto']")))      
         Message_Box.send_keys(prompt)
@@ -56,9 +62,10 @@ class LLM:
         Button = WebDriverWait(self.driver , 10).until(EC.element_to_be_clickable((By.XPATH,"//button[@type= 'submit']")))
         Button.click()
 
-      WebDriverWait(self.driver, 200).until(lambda d: d.find_element(By.XPATH,"//div[@data-testid='lastChatMessage']").text.strip() != "")
-      answer = self.driver.find_element(By.XPATH,"//div[@data-testid='lastChatMessage']").text
-      return answer
+      WebDriverWait(self.driver, 200).until(lambda d: d.find_element(By.XPATH,"(//div[@data-testid='lastChatMessage'])[1]").get_attribute('innerText').strip() != "")
+      answer = self.driver.find_element(By.XPATH,"//div[@data-testid='lastChatMessage']")
+
+      return Markdown(markdownify(answer.get_attribute("innerHTML"), heading_style='ATX' , bullets= "•"))
 
     def quit_Copilot(self):
          self.driver.quit()

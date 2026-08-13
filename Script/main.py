@@ -3,8 +3,11 @@ from DataBase_Connection import Connection
 from Storage import Text_Storage
 from RAG import Retrieval
 from COPILOT import LLM
+from rich.console import Console
 
 def run():
+    
+    console = Console()        
     Embedder = Embeddings()
     embedder = Embedder.get_embedder()
     print("Embeddings are OK")
@@ -31,7 +34,8 @@ def run():
         else:    
             retrieved_context = retrieve.retrieve_chunks(user_input)
             Answer = Model.get_answer(retrieved_context , user_input)
-            print(f"Assistant: {Answer}")
+            print("Assistant:" , sep=' ')
+            console.print(Answer)
 
 if __name__ == "__main__":
     run()
