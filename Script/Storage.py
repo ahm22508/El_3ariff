@@ -27,7 +27,3 @@ class Text_Storage:
                 embeddings=[emb],
                 ids=[uid]
             )
-
-
-
-

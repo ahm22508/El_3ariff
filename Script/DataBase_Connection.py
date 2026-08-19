@@ -10,5 +10,4 @@ class Connection:
                 configuration={'hnsw' : {'space':'cosine'}},
                 metadata={"description": "Internal business knowledge"}
                 )
-       return self.collection
-        
+       return self.collection       

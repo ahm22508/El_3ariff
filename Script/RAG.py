@@ -18,7 +18,5 @@ class Retrieval:
         chunks = []
         for doc, dist in zip(results['documents'][0], results['distances'][0]):
             if dist < similarity_threshold:
-                print(doc)
-                print(dist)
                 chunks.append(doc)
         return chunks
